@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { Github, ExternalLink, Star, GitFork, Eye } from 'lucide-react';
+import { Github, ExternalLink, Star, GitFork, Eye, Calendar, TrendingUp } from 'lucide-react';
 
-const ProjectsSection = ({ data }) => {
+const ProjectsSection = ({ data, githubStats }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [filter, setFilter] = useState('all');
   const [hoveredProject, setHoveredProject] = useState(null);
@@ -29,16 +29,16 @@ const ProjectsSection = ({ data }) => {
 
   const categories = [
     { id: 'all', label: 'All Projects', count: data.length },
-    { id: 'web', label: 'Web Development', count: 2 },
-    { id: 'ml', label: 'Machine Learning', count: 1 },
-    { id: 'tools', label: 'Tools & Utilities', count: 1 }
+    { id: 'web', label: 'Web Development', count: data.filter(p => p.tech.some(t => ['React', 'Vue', 'Laravel', 'PHP', 'JavaScript'].includes(t))).length },
+    { id: 'ml', label: 'Machine Learning', count: data.filter(p => p.tech.some(t => ['Python', 'TensorFlow', 'PyTorch', 'Jupyter'].includes(t))).length },
+    { id: 'tools', label: 'Tools & Utilities', count: data.filter(p => p.tech.some(t => ['Node.js', 'CLI', 'API', 'MongoDB'].includes(t))).length }
   ];
 
   const getProjectCategory = (project) => {
-    if (project.tech.some(tech => ['Python', 'LSTM', 'TensorFlow', 'MediaPipe'].includes(tech))) {
+    if (project.tech.some(tech => ['Python', 'TensorFlow', 'PyTorch', 'Jupyter', 'scikit-learn'].includes(tech))) {
       return 'ml';
     }
-    if (project.tech.some(tech => ['Laravel', 'PHP', 'Vue.js', 'React'].includes(tech))) {
+    if (project.tech.some(tech => ['React', 'Vue', 'Laravel', 'PHP', 'JavaScript', 'HTML', 'CSS'].includes(tech))) {
       return 'web';
     }
     return 'tools';
@@ -48,10 +48,34 @@ const ProjectsSection = ({ data }) => {
     ? data 
     : data.filter(project => getProjectCategory(project) === filter);
 
-  const mockStats = {
-    stars: Math.floor(Math.random() * 50) + 10,
-    forks: Math.floor(Math.random() * 20) + 5,
-    watchers: Math.floor(Math.random() * 30) + 8
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short'
+    });
+  };
+
+  const getLanguageColor = (language) => {
+    const colors = {
+      'JavaScript': 'bg-yellow-500',
+      'Python': 'bg-blue-500',
+      'Java': 'bg-red-500',
+      'TypeScript': 'bg-blue-600',
+      'PHP': 'bg-purple-500',
+      'C++': 'bg-blue-700',
+      'HTML': 'bg-orange-500',
+      'CSS': 'bg-blue-400',
+      'Vue': 'bg-green-500',
+      'React': 'bg-cyan-500',
+      'Laravel': 'bg-red-600',
+      'Node.js': 'bg-green-600',
+      'MongoDB': 'bg-green-700',
+      'MySQL': 'bg-blue-800',
+      'Docker': 'bg-blue-600',
+      'Git': 'bg-gray-600'
+    };
+    return colors[language] || 'bg-gray-500';
   };
 
   return (
@@ -67,6 +91,38 @@ const ProjectsSection = ({ data }) => {
             A showcase of my technical expertise and creative problem-solving
           </p>
         </div>
+
+        {/* GitHub Stats */}
+        {githubStats && Object.keys(githubStats).length > 0 && (
+          <div className={`grid grid-cols-2 md:grid-cols-4 gap-6 mb-12 transform transition-all duration-1000 delay-200 ${
+            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+          }`}>
+            <Card className="p-4 text-center border-2 hover:border-primary/50 transition-all duration-300">
+              <CardContent className="p-0">
+                <div className="text-2xl font-bold text-primary mb-1">{githubStats.total_repos || 0}</div>
+                <div className="text-sm text-muted-foreground">Repositories</div>
+              </CardContent>
+            </Card>
+            <Card className="p-4 text-center border-2 hover:border-primary/50 transition-all duration-300">
+              <CardContent className="p-0">
+                <div className="text-2xl font-bold text-yellow-500 mb-1">{githubStats.total_stars || 0}</div>
+                <div className="text-sm text-muted-foreground">Stars</div>
+              </CardContent>
+            </Card>
+            <Card className="p-4 text-center border-2 hover:border-primary/50 transition-all duration-300">
+              <CardContent className="p-0">
+                <div className="text-2xl font-bold text-blue-500 mb-1">{githubStats.total_forks || 0}</div>
+                <div className="text-sm text-muted-foreground">Forks</div>
+              </CardContent>
+            </Card>
+            <Card className="p-4 text-center border-2 hover:border-primary/50 transition-all duration-300">
+              <CardContent className="p-0">
+                <div className="text-2xl font-bold text-green-500 mb-1">{Object.keys(githubStats.languages || {}).length}</div>
+                <div className="text-sm text-muted-foreground">Languages</div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Filter Categories */}
         <div className={`flex flex-wrap justify-center gap-4 mb-12 transform transition-all duration-1000 delay-300 ${
@@ -146,21 +202,33 @@ const ProjectsSection = ({ data }) => {
                     <h3 className="text-xl font-bold text-primary group-hover:text-primary/80 transition-colors">
                       {project.name}
                     </h3>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4" />
-                        <span>{mockStats.stars}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <GitFork className="w-4 h-4" />
-                        <span>{mockStats.forks}</span>
-                      </div>
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                      {project.stars !== undefined && (
+                        <div className="flex items-center gap-1">
+                          <Star className="w-4 h-4 text-yellow-500" />
+                          <span>{project.stars}</span>
+                        </div>
+                      )}
+                      {project.forks !== undefined && (
+                        <div className="flex items-center gap-1">
+                          <GitFork className="w-4 h-4 text-blue-500" />
+                          <span>{project.forks}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                   
-                  <p className="text-muted-foreground mb-4 line-clamp-3">
+                  <p className="text-muted-foreground mb-4 line-clamp-3 text-sm">
                     {project.description}
                   </p>
+                  
+                  {/* Update Info */}
+                  {project.updated && (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
+                      <Calendar className="w-3 h-3" />
+                      <span>Updated {formatDate(project.updated)}</span>
+                    </div>
+                  )}
                   
                   {/* Technology Stack */}
                   <div className="flex flex-wrap gap-2 mb-4">
@@ -168,7 +236,7 @@ const ProjectsSection = ({ data }) => {
                       <Badge 
                         key={techIndex} 
                         variant="outline" 
-                        className="text-xs hover:bg-primary/10 hover:border-primary/50 transition-all duration-300"
+                        className={`text-xs hover:bg-primary/10 hover:border-primary/50 transition-all duration-300 ${getLanguageColor(tech)} text-white border-0`}
                       >
                         {tech}
                       </Badge>
