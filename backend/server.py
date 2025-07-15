@@ -10,13 +10,13 @@ from typing import List, Optional
 from datetime import datetime
 
 # Import models and services
-from .models import (
+from models import (
     ContactMessageCreate, ContactMessageResponse, 
     GitHubRepoWithLanguages, GitHubUser, GitHubAPIResponse,
     PortfolioData, PersonalInfo, SkillCategory, Experience
 )
-from .services.github_service import GitHubService
-from .services.contact_service import ContactService
+from services.github_service import GitHubService
+from services.contact_service import ContactService
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
