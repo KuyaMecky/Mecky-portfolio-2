@@ -4,7 +4,7 @@ import json
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from ..models import GitHubRepo, GitHubUser, GitHubLanguage, GitHubRepoWithLanguages, GitHubAPIResponse
+from models import GitHubRepo, GitHubUser, GitHubLanguage, GitHubRepoWithLanguages, GitHubAPIResponse
 import logging
 
 logger = logging.getLogger(__name__)
