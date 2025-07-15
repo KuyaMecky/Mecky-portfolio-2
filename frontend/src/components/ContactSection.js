@@ -5,7 +5,7 @@ import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
 import { Badge } from './ui/badge';
-import { useToast } from '../hooks/use-toast';
+import { useContact } from '../hooks/useContact';
 import { 
   Mail, Phone, MapPin, Github, Linkedin, ExternalLink,
   Send, MessageCircle, Clock, CheckCircle 
@@ -19,8 +19,7 @@ const ContactSection = ({ data }) => {
     subject: '',
     message: ''
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
+  const { sendMessage, isSubmitting } = useContact();
   const sectionRef = useRef(null);
 
   useEffect(() => {
@@ -50,33 +49,17 @@ const ContactSection = ({ data }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    // Store form data in localStorage for demo purposes
-    const submissions = JSON.parse(localStorage.getItem('contactSubmissions') || '[]');
-    submissions.push({
-      ...formData,
-      timestamp: new Date().toISOString(),
-      id: Date.now()
-    });
-    localStorage.setItem('contactSubmissions', JSON.stringify(submissions));
-
-    toast({
-      title: "Message sent successfully!",
-      description: "Thank you for reaching out. I'll get back to you soon.",
-      duration: 5000,
-    });
-
-    setFormData({
-      name: '',
-      email: '',
-      subject: '',
-      message: ''
-    });
-    setIsSubmitting(false);
+    
+    const result = await sendMessage(formData);
+    
+    if (result.success) {
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+      });
+    }
   };
 
   const contactInfo = [
